@@ -3,19 +3,27 @@ from app import db
 
 
 class Usuario(db.Model):
-    """
-    Armazena os detalhes do usuário cadastrado.
-
+    """Armazena os detalhes do usuário cadastrado.
+    
     Os campos principais são: Nome, E-mail, Senha e Telefone.
-
+    
     Além dessas informações, o modelo inclui metadados:
     Data de Criação, Data de Atualização, Último Login e Token.
 
-    :param str nome: Nome do usuário
-    :param str email: E-mail do usuário
-    :param str senha: Senha do usuário a passar por hash
-    :param list telefones: Telefones do usuário em forma de lista.
+    :param nome: Nome do usuário
+    :type nome: str
+    :param email: E-mail do usuário
+    :type email: str
+    :param senha: Senha do usuário a passar por hash
+    :type senha: str
+    :param telefones: Telefones do usuário em forma de lista.
+    :type telefones: list
+
     """
+    # TODO: implementar uma forma de atualizar o token.
+    # TODO: Implementar data de atualização para o mesmo que a data da criação.
+    # TODO: Criar uuid, depois de todas as outras implementações.
+    # TODO: Evitar duplicação de e-mails no model.
     __tablename__ = 'usuarios'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,18 +45,21 @@ class Usuario(db.Model):
 
 
 class Telefone(db.Model):
-    """
-    Armazena os telefones dos usuários.
-
+    """Armazena os telefones dos usuários.
+    
     Os principais campos são Número e DDD.
 
-    :param str numero: Número do telefone
-    :param str ddd: DDD do telefone
-    :param int usuario_id: Identificador do usuário
+    :param numero: Número do telefone
+    :type numero: str
+    :param ddd: DDD do telefone
+    :type ddd: str
+    :param usuario_id: Identificador do usuário
+    :type usuario_id: int
+
     """
     __tablename__ = 'telefones'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.int, primary_key=True)
     numero = db.Column(db.String(16), nullable=False)
     ddd = db.Column(db.String(2), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
