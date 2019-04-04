@@ -1,5 +1,6 @@
 from datetime import datetime
-from app import db
+from app import db, bcrypt
+from flask_sqlalchemy import event
 
 
 class Usuario(db.Model):
@@ -21,14 +22,12 @@ class Usuario(db.Model):
 
     """
     # TODO: implementar uma forma de atualizar o token.
-    # TODO: Implementar data de atualização para o mesmo que a data da criação.
     # TODO: Criar uuid, depois de todas as outras implementações.
-    # TODO: Evitar duplicação de e-mails no model.
     __tablename__ = 'usuarios'
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(70), nullable=False)
+    email = db.Column(db.String(70), nullable=False, unique=True)
     senha = db.Column(db.String(120), nullable=False)
     telefones = db.relationship('Telefone', backref='usuario', lazy=False)
 
@@ -42,7 +41,6 @@ class Usuario(db.Model):
 
     def __repr__(self):
         return '<Usuário: {} - {}>'.format(self.nome, self.email)
-
 
     def to_json(self):
         resultado = {
@@ -81,3 +79,11 @@ class Telefone(db.Model):
 
     def __repr__(self):
         return '<Telefone: ({}) {}>'.format(self.numero, self.ddd)
+
+
+@event.listens_for(Usuario, 'before_insert')
+def on_before_insert_usuario(mapper, connection, target):
+    target.senha = bcrypt.generate_password_hash(target.senha).decode('utf-8')
+
+    if not target.data_atualizacao:
+        target.data_atualizacao = datetime.now()
