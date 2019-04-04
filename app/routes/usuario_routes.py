@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 
+
 usuarios_bp = Blueprint('usuarios', __name__)
 
 from app.models import Usuario, db, Telefone
@@ -43,15 +44,7 @@ def criar_usuario():
         db.session.add(usuario)
         db.session.commit()
 
-        resultado = {
-            'id': usuario.id,
-            'data_criacao': usuario.data_criacao,
-            'data_atualizacao': usuario.data_atualizacao,
-            'ultimo_login': usuario.ultimo_login,
-            'token': usuario.token
-        }
-
-        return jsonify(resultado), 201
+        return jsonify(usuario.to_json()), 201
     else:
         return jsonify({'mensagem': 'JSON inválido ou vazio.'}), 422
 
@@ -59,7 +52,8 @@ def criar_usuario():
 @usuarios_bp.route('/<usuario_id>')
 def buscar_usuario(usuario_id):
     # TODO: Implementar funcionalidade
-    return 'buscar_usuario'
+    usuario = Usuario.query.get_or_404(usuario_id)
+    return jsonify(usuario.to_json()), 200
 
 
 @usuarios_bp.route('/signin')

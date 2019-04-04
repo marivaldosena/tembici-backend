@@ -44,6 +44,18 @@ class Usuario(db.Model):
         return '<Usuário: {} - {}>'.format(self.nome, self.email)
 
 
+    def to_json(self):
+        resultado = {
+            'id': self.id,
+            'data_criacao': self.data_criacao,
+            'data_atualizacao': self.data_atualizacao,
+            'ultimo_login': self.ultimo_login,
+            'token': self.token
+        }
+
+        return resultado
+
+
 class Telefone(db.Model):
     """Armazena os telefones dos usuários.
     
@@ -59,7 +71,7 @@ class Telefone(db.Model):
     """
     __tablename__ = 'telefones'
 
-    id = db.Column(db.int, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.String(16), nullable=False)
     ddd = db.Column(db.String(2), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
