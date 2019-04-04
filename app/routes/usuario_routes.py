@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 
 
 usuarios_bp = Blueprint('usuarios', __name__)
@@ -50,8 +51,13 @@ def criar_usuario():
 
 
 @usuarios_bp.route('/<usuario_id>')
+@jwt_required
 def buscar_usuario(usuario_id):
     # TODO: Implementar funcionalidade
+    # TODO: Caso o token não exista, retornar erro com status apropriado com a mensagem "Não autorizado".
+    # TODO: Caso o token exista, buscar o usuário pelo user_id passado no path e comparar se o token no modelo é igual ao token passado no header.
+    # TODO: Caso não seja o mesmo token, retornar erro com status apropriado e mensagem "Não autorizado"
+    # TODO: Caso não seja a MENOS que 30 minutos atrás, retornar erro com status apropriado com mensagem "Sessão inválida".
     usuario = Usuario.query.get_or_404(usuario_id)
     return jsonify(usuario.to_json()), 200
 

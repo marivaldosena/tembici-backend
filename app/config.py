@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -11,6 +12,12 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret_key'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY =  os.environ.get('JWT_SECRET_KEY') or '331168d77efc93d6dcef1e13761890d5b764bccc74c730c3a7d743e7b6a01499'
+    JWT_ERROR_MESSAGE_KEY = 'mensagem'
+    JWT_HEADER_NAME = 'Authentication'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+        minutes=int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES') or 30)
+    )
 
 
 class DevConfig(Config):
