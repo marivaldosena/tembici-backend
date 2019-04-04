@@ -10,6 +10,11 @@ class Usuario(db.Model):
 
     Além dessas informações, o modelo inclui metadados:
     Data de Criação, Data de Atualização, Último Login e Token.
+
+    :param str nome: Nome do usuário
+    :param str email: E-mail do usuário
+    :param str senha: Senha do usuário a passar por hash
+    :param list telefones: Telefones do usuário em forma de lista.
     """
     __tablename__ = 'usuarios'
 
@@ -36,6 +41,10 @@ class Telefone(db.Model):
     Armazena os telefones dos usuários.
 
     Os principais campos são Número e DDD.
+
+    :param str numero: Número do telefone
+    :param str ddd: DDD do telefone
+    :param int usuario_id: Identificador do usuário
     """
     __tablename__ = 'telefones'
 
