@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token
-
+from app import bcrypt
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
@@ -29,17 +29,17 @@ def criar_usuario():
     if request.data:
         json = request.get_json()
 
-        e_existente = Usuario.query.filter_by(email=json['email']).first()
+        e_existente = Usuario.query.filter_by(email=json.get('email', None)).first()
 
         if e_existente:
-            return jsonify({'mensagem': 'E-mail já existente.'}), 403
+            return jsonify({'mensagem': 'E-mail já existente.'}), 400
 
-        usuario = Usuario(nome=json['nome'],
-                          email=json['email'],
-                          senha=json['senha'])
+        usuario = Usuario(nome=json.get('nome', None),
+                          email=json.get('email', None),
+                          senha=json.get('senha', None))
 
-        for item in json['telefones']:
-            telefone = Telefone(ddd=item['ddd'], numero=item['numero'])
+        for item in json.get('telefones', None):
+            telefone = Telefone(ddd=item.get('ddd', None), numero=item.get('numero', None))
             usuario.telefones.append(telefone)
 
         usuario.token = create_access_token(usuario.email)
@@ -69,5 +69,19 @@ def buscar_usuario(usuario_id):
 
 @usuarios_bp.route('/signin')
 def signin():
-    # TODO: Implementar funcionalidade
-    return 'signin'
+    if request.data:
+        json = request.get_json()
+
+        usuario = Usuario.query.filter_by(email=json.get('email', None)).first()
+
+        # E-mail inexistente
+        if not usuario:
+            return jsonify({'mensagem': 'Usuário e/ou senha inválidos'}), 401
+
+        if not json.get('senha', None) or \
+                not bcrypt.check_password_hash(usuario.senha, json.get('senha', None)):
+            return jsonify({'mensagem': 'Usuário e/ou senha inválidos'})
+
+        return jsonify(usuario.to_json())
+    else:
+        return jsonify({'mensagem': 'JSON inválido ou vazio.'}), 422

@@ -36,6 +36,7 @@ class Usuario(db.Model):
     ultimo_login = db.Column(db.DateTime)
     token = db.Column(db.String(120), nullable=True)
 
+
     def __str__(self):
         return '<Usuário: {} - {}>'.format(self.nome, self.email)
 
