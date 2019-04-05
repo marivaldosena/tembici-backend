@@ -35,7 +35,7 @@ class Usuario(db.Model):
     data_criacao = db.Column(db.DateTime, default=datetime.now)
     data_atualizacao = db.Column(db.DateTime, onupdate=datetime.now)
     ultimo_login = db.Column(db.DateTime)
-    token = db.Column(db.String(120), nullable=True)
+    token = db.Column(db.String(300), nullable=True)
     expires_at = db.Column(db.DateTime)
 
     def __str__(self):
