@@ -80,8 +80,9 @@ def signin():
         if not usuario:
             return jsonify({'mensagem': 'Usuário e/ou senha inválidos'}), 401
 
+        # Senha
         if not json.get('senha', None) or \
-                not bcrypt.check_password_hash(usuario.senha, json.get('senha', None)):
+                not usuario.verificar_senha(json.get('senha', None)):
             return jsonify({'mensagem': 'Usuário e/ou senha inválidos'})
 
         return jsonify(usuario.to_json())

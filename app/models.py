@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from app import db, bcrypt, app
 from flask_sqlalchemy import event
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 
 
 class Usuario(db.Model):
@@ -76,8 +76,22 @@ class Usuario(db.Model):
 
         return True
 
-    def _
+    def verificar_senha(self, senha):
+        self.__atualizar_token()
+        if bcrypt.check_password_hash(self.senha, senha):
+            self.__atualizar_ultimo_login()
+            return True
+        else:
+            return False
 
+
+    def __atualizar_token(self):
+        self.expires_at = datetime.now() + app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 30)
+        self.token = create_refresh_token(self.email)
+
+
+    def __atualizar_ultimo_login(self):
+        self.ultimo_login = datetime.now()
 
 class Telefone(db.Model):
     """Armazena os telefones dos usuários.
