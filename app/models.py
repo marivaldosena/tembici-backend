@@ -1,6 +1,7 @@
-from datetime import datetime
-from app import db, bcrypt
+from datetime import datetime, timedelta
+from app import db, bcrypt, app
 from flask_sqlalchemy import event
+from flask_jwt_extended import create_access_token
 
 
 class Usuario(db.Model):
@@ -35,7 +36,7 @@ class Usuario(db.Model):
     data_atualizacao = db.Column(db.DateTime, onupdate=datetime.now)
     ultimo_login = db.Column(db.DateTime)
     token = db.Column(db.String(120), nullable=True)
-
+    expires_at = db.Column(db.DateTime)
 
     def __str__(self):
         return '<Usuário: {} - {}>'.format(self.nome, self.email)
@@ -53,6 +54,29 @@ class Usuario(db.Model):
         }
 
         return resultado
+
+    def verificar_token(self, token):
+        """ Verifica se o Token informado é válido.
+
+        Retorna True se o token for igual ao do usuário e for dentro do prazo de expiração.
+        Se não, retorna False.
+
+        :param token: Token informado pelo usuário
+        :type token: str
+        :return: bool
+        """
+
+        if 'Bearer {}'.format(self.token) != token:
+            return False
+
+        data_inicial = datetime.now()
+
+        if data_inicial > self.expires_at:
+            return False
+
+        return True
+
+    def _
 
 
 class Telefone(db.Model):
@@ -88,3 +112,12 @@ def on_before_insert_usuario(mapper, connection, target):
 
     if not target.data_atualizacao:
         target.data_atualizacao = datetime.now()
+
+    if not target.ultimo_login:
+        target.ultimo_login = datetime.now()
+
+    if not target.token:
+        target.token = create_access_token(target.email)
+
+    if not target.expires_at:
+        target.expires_at = datetime.now() + app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 30)

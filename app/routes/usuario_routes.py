@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, create_access_token
 from app import bcrypt
 
 usuarios_bp = Blueprint('usuarios', __name__)
@@ -38,12 +37,10 @@ def criar_usuario():
                           email=json.get('email', None),
                           senha=json.get('senha', None))
 
-        for item in json.get('telefones', None):
-            telefone = Telefone(ddd=item.get('ddd', None), numero=item.get('numero', None))
-            usuario.telefones.append(telefone)
-
-        usuario.token = create_access_token(usuario.email)
-        print(usuario.token)
+        if json.get('telefones', None):
+            for item in json.get('telefones', None):
+                telefone = Telefone(ddd=item.get('ddd', None), numero=item.get('numero', None))
+                usuario.telefones.append(telefone)
 
         db.session.add(usuario)
         db.session.commit()
@@ -54,16 +51,21 @@ def criar_usuario():
 
 
 @usuarios_bp.route('/<usuario_id>')
-@jwt_required
 def buscar_usuario(usuario_id):
-    # TODO: Implementar funcionalidade
-    # TODO: Caso o token não exista, retornar erro com status apropriado com a mensagem "Não autorizado".
-    # TODO: Caso o token exista, buscar o usuário pelo user_id passado no path e comparar se o token no modelo é igual ao token passado no header.
-    # TODO: Caso não seja o mesmo token, retornar erro com status apropriado e mensagem "Não autorizado"
-    # TODO: Caso não seja a MENOS que 30 minutos atrás, retornar erro com status apropriado com mensagem "Sessão inválida".
-    # TODO: Mudar a mensagem quando não há o cabeçalho Authentication para "Não autorizado"
-    # TODO: Mudar a mensagem de token expirado para "Sessão inválida"
+    # Verifica se há o cabeçalho com o token
+    if not request.headers.get('Authentication', None):
+        return jsonify({'mensagem': 'Não autorizado'}), 401
+
     usuario = Usuario.query.get_or_404(usuario_id)
+
+    if 'Bearer {}'.format(usuario.token) != request.headers.get('Authentication', None):
+        return jsonify({'mensagem': 'Não autorizado'}), 401
+
+    # Verifica se o token é o mesmo do usuário
+    if not usuario.verificar_token(request.headers.get('Authentication', None)):
+        return jsonify({'mensagem': 'Sessão inválida'}), 401
+
+
     return jsonify(usuario.to_json()), 200
 
 
