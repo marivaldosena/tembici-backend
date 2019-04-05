@@ -27,7 +27,7 @@ GET https://msena-tembici-backend.herokuapp.com/api/users/signin
 	"email": "email",
 	"senha": "senha"
 }
-``
+```
 
 
 Buscar Usuário
